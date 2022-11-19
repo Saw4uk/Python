@@ -13,6 +13,7 @@ clear_html = re.compile('<.*?>')
 format_money = re.compile('\d+(\.\d{1,2})?')
 
 #Коммент, подтверждающий, что файл из ветки develop
+#Строка для конфликта значение ветка master
 def split_skills(skills):
     return skills.split("\n")
 
