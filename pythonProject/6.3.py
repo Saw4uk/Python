@@ -12,7 +12,7 @@ import excel2img
 clear_html = re.compile('<.*?>')
 format_money = re.compile('\d+(\.\d{1,2})?')
 
-
+#Коммент, подтверждающий, что файл из ветки develop
 def split_skills(skills):
     return skills.split("\n")
 
