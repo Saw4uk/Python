@@ -12,19 +12,21 @@ import excel2img
 clear_html = re.compile('<.*?>')
 format_money = re.compile('\d+(\.\d{1,2})?')
 
-#Коммент, подтверждающий, что файл из ветки develop
-<<<<<<< HEAD
-#Строка для конфликта значение ветка master
-=======
-#Строка для конфликта значение ветка develop
->>>>>>> master
-def split_skills(skills):
-    return skills.split("\n")
 
+# Коммент, подтверждающий, что файл из ветки develop
+
+
+# Строка для конфликта значение ветка develop
 
 class DataSet:
 
     def clear_file(self, file_massive):
+        """Очищает файл от пустых строк и HTML тегов
+
+        :param file_massive: Массив строк
+        :type file_massive: list
+
+        :return: Очищенный от пустых строк и HTML тегов массив"""
         file_massive = self.clear_no_full_rows(file_massive)
         for i, row in enumerate(file_massive):
             file_massive[i] = self.clear_row(row)
@@ -32,6 +34,12 @@ class DataSet:
 
     @staticmethod
     def clear_row(row: list):
+        """Очищает каждый элемент списка от HTML тегов
+
+        :param row: Строка файла, содержащая всю информацию о вакансии
+        :type row: list
+
+        :return: Строка, где каждый элемент очищен от тегов"""
         for i, string in enumerate(row):
             if i == 2:
                 continue
@@ -40,10 +48,22 @@ class DataSet:
         return row
 
     def clear_no_full_rows(self, file):
+        """Очищает файл от пустых строк
+
+        :param file: Полный файл, содержащий все вакансии
+        :type file: list
+
+        :return: Файл без пустых строк"""
         return [row for row in file if self.is_full(row)]
 
     @staticmethod
     def is_full(row):
+        """Проверяет, содержит ли строка пустое значение
+
+        :param row: Строка файла, содержащая всю информацию о вакансии
+        :type row: list
+
+        :return: Логический выход Да/Нет"""
         if len(row) == 0:
             return False
         for string in row:
@@ -52,10 +72,22 @@ class DataSet:
         return True
 
     def CreateVacancy(self, list):
+        """Создает вакансию через конструктор, используя данные о том, какие поля, в каких ячейках расположены
+
+        :param list: Список полей вакансии
+        :type list: list
+
+        :return: Обьект типа Vacancy"""
         return Vacancy(list, self.dic_keys)
 
     @staticmethod
     def read_file(name):
+        """Читает файл
+
+        :param name: Имя файла
+        :type name: str
+
+        :return: Возвращает массив ключей и основной массив данных"""
         with open(name, 'r', encoding='utf-8-sig') as f:
             file_massive = list(csv.reader(f))
         if len(file_massive) == 1:
@@ -67,6 +99,11 @@ class DataSet:
         return file_massive.pop(0), file_massive
 
     def __init__(self, file_name):
+        """Создает обьект DataSet, считывает файл и преобразует его в массив обьектов Vacancy
+
+        :param file_name: Имя файла
+        :type file_name: str
+        """
         self.file_name = file_name
         table_keys, file = self.read_file(file_name)
         self.dic_keys = {}
@@ -79,6 +116,9 @@ class DataSet:
 class Salary:
     @staticmethod
     def currency_to_rub():
+        """Возвращает словарь курса валют к рублю
+
+        :return: Словарь курса валют к рублю"""
         return {
             "AZN": 35.68,
             "BYR": 23.91,
@@ -94,6 +134,12 @@ class Salary:
 
     @staticmethod
     def parse_money(money):
+        """Преобразует предоставленное число в формат ХХХХХ.00
+
+        :param money: Входное число
+        :type money: str
+
+        :return: Возвращает строку в числовом формате"""
         x = re.sub(format_money, lambda x: "${:,.2f}"
                    .format(float(x.group())), money) \
             .replace(",", " ") \
@@ -102,9 +148,23 @@ class Salary:
         return x
 
     def get_formatted(self, dic_currency):
-        return f'{Salary.parse_money(str(self.salary_from))} - {Salary.parse_money(str(self.salary_to))} ({dic_currency[self.salary_currency]}) ({"С вычетом налогов" if self.salary_gross is False else "Без вычета налогов"})'
+        """Преобразует объект Salary в строку
+
+        :param dic_currency: Словарь курса валют к рублю
+        :type dic_currency: dict
+
+        :return: Возвращает отформатирвоанную строку"""
+        return f'{Salary.parse_money(str(self.salary_from ))} - {Salary.parse_money(str(self.salary_to))} ({dic_currency[self.salary_currency]}) ({"С вычетом налогов" if self.salary_gross is False else "Без вычета налогов"})'
 
     def __init__(self, salary_from, salary_to, salary_currency):
+        """Создает обьект Salary
+
+        :param salary_from: Нижний потолок зарплаты
+        :type salary_from: float
+        :param salary_to: Верхний потолок зарплаты
+        :type salary_to: float
+        :param salary_currency: Валюта зарплаты
+        :type salary_currency: float"""
         self.salary_from = salary_from
         self.salary_to = salary_to
         self.salary_currency = salary_currency
@@ -114,6 +174,14 @@ class Salary:
 
 class Vacancy:
     def __init__(self, vacancy: list, dic_keys):
+        """Создает обьект класса Vacancy
+
+        :param vacancy: Список полей вакансии
+        :type vacancy: list
+        :param dic_keys: Список ключей массива полей вакансии
+        :type dic_keys: dict
+
+        :return: Возвращает отформатирвоанную строку"""
         self.name = vacancy[dic_keys['name']]
         self.salary = Salary(vacancy[dic_keys['salary_from']], vacancy[dic_keys['salary_to']],
                              vacancy[dic_keys['salary_currency']])
@@ -124,9 +192,27 @@ class Vacancy:
 class Statistics:
 
     def __init__(self, vacancy_name, data_set):
+        """Создает обьект класса Statistics
+
+        :param vacancy_name: Название вакансии для сбора статистики
+        :type vacancy_name: str
+        :param data_set: Обьект DataSet c информацией для сбора статистики
+        :type data_set: DataSet
+        """
         self.total_count = len(data_set.vacancies_objects)
 
         def add_to_dic(amount_dic, salary_dic, vacancy, field):
+            """Создает обьект класса Statistics
+
+            :param amount_dic: Словарь количества вакансий
+            :type amount_dic: dict
+            :param salary_dic: Словарь обьема зарплат
+            :type salary_dic: dict
+            :param vacancy: Обьект Vacancy
+            :type vacancy: Vacancy
+            :param field: Поле для добавления
+            :type field: int
+            """
             if field in salary_dic:
                 salary_dic[field] += vacancy.salary.salary_middle
             else:
@@ -162,6 +248,15 @@ class Statistics:
         self.dic_towns_amount = result_dict
 
     def get_format_dic(self, dic, amdic):
+        """Форматирует исходный словарь
+
+        :param amdic: Словарь количества вакансий
+        :type amdic: dict
+        :param dic: Словарь обьема зарплат
+        :type dic: dict
+
+        :return: Отформатированный словарь
+        """
         resultdic = {}
         for year in dic.keys():
             if amdic[year] == 0:
@@ -171,6 +266,13 @@ class Statistics:
         return resultdic
 
     def get_ten_len(self, dic):
+        """Форматирует исходный словарь до длины в 10
+
+        :param dic: Словарь обьема зарплат
+        :type dic: dict
+
+        :return: Первые 10 пар словаря
+        """
         result = {}
         for x in dic.keys():
             result[x] = dic[x]
@@ -179,6 +281,10 @@ class Statistics:
         return result
 
     def get_parts(self):
+        """Формирует словарь в 10 частей с долями
+
+        :return: Словарь в 10 частей с долями
+        """
         dic_parts = {}
         for town in self.dic_towns_amount.keys():
             to_add = self.dic_towns_amount[town] / self.total_count
@@ -188,10 +294,18 @@ class Statistics:
                 continue
         return self.get_ten_len(self.sort_dic(dic_parts))
 
-    def sort_dic(self, dic: dict):
+    def sort_dic(self, dic):
+        """Сортирует словарь по значениям
+
+        :param dic: Словарь обьема зарплат
+        :type dic: dict
+
+        :return: Отсортированный словарь
+        """
         return dict(sorted(dic.items(), key=lambda item: float(item[1]), reverse=True))
 
     def print_formatted(self):
+        """Ввыодит результат статистической обработки в отформатированном виде"""
         self.final_year_salar = self.get_format_dic(self.dic_year_salaries, self.dic_year_amount)
         self.final_year_amount = self.dic_year_amount
         print(f"Динамика уровня зарплат по годам: {self.final_year_salar}")
@@ -212,6 +326,7 @@ class Statistics:
 class DiagrammCreator:
     @staticmethod
     def create_collumns_diagramm(years, vacancy_salaries_array, middle_salaries_array, vacancy_name, table_name, ax):
+        """Создает столбчатую диаграмму"""
         x = np.arange(len(years))  # the label locations
         width = 0.3  # the width of the bars
 
@@ -225,6 +340,7 @@ class DiagrammCreator:
 
     @staticmethod
     def create_horizontal_diagramm(towns_array, towns_array_values, table_name, ax):
+        """Создает горизонтальную диаграмму"""
         y_pos = np.arange(len(towns_array))
         ax.grid(axis="y")
         ax.barh(y_pos, towns_array_values, align='center')
@@ -234,6 +350,7 @@ class DiagrammCreator:
 
     @staticmethod
     def create_circle_diagramm(sizes, labels, table_name, ax):
+        """Создает круглую диаграмму"""
         ax.set_title(table_name)
         patches, texts = ax.pie([1 - sum(sizes)] + sizes, labels=["Другие"] + labels)
         for tick in texts:
