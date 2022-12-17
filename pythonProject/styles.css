@@ -1,0 +1,23 @@
+@font-face {
+    font-family: "Stalk";
+    src: local("Stalk"),
+    url("RevenantsRegular.ttf") format("opentype");
+    font-weight: 300;
+}
+
+html{
+    display: block;
+    font-family: Stalk;
+}
+
+.container{
+  width: 100%;
+  padding: 10px;
+  text-align: center;
+}
+
+.image{
+  margin: 0 auto;
+  width: 100%;
+  padding: 10px;
+}
