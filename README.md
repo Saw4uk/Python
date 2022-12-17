@@ -10,7 +10,7 @@
 Все пропрофилировал
 ![image](https://user-images.githubusercontent.com/87923228/206998264-e66afb98-6d30-41ff-afa3-c07a49d914b1.png)
 
-#3.2.1
+# 3.2.1
 
 Код загружен, класс Splitter
 
