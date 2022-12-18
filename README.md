@@ -152,4 +152,5 @@ class MainStatistics:
 
 Время с асинхом
 
+![image](https://user-images.githubusercontent.com/87923228/208297424-7e8cc93c-33fd-495d-ba03-66a7a6b3ce74.png)
 
