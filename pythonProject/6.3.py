@@ -9,6 +9,7 @@ from openpyxl import Workbook
 from jinja2 import Environment, FileSystemLoader
 import pdfkit
 import excel2img
+from multiprocessing import Pool
 
 clear_html = re.compile('<.*?>')
 format_money = re.compile('\d+(\.\d{1,2})?')
@@ -278,6 +279,122 @@ class Statistics:
                 self.dic_towns_salaries.pop(town)
         self.dic_towns_amount = result_dict
 
+
+class DiagrammCreator:
+    @staticmethod
+    def create_collumns_diagramm(years, vacancy_salaries_array, middle_salaries_array, vacancy_name, table_name, ax):
+        """Создает столбчатую диаграмму"""
+        x = np.arange(len(years))  # the label locations
+        width = 0.3  # the width of the bars
+
+        ax.bar(x - width / 2, middle_salaries_array, width, label='Средняя з/п')
+        ax.bar(x + width / 2, vacancy_salaries_array, width, label=f'з/п {vacancy_name}')
+
+        ax.grid(axis="y")
+        ax.set_title(table_name)
+        ax.set_xticks(x, years, rotation=90, fontsize=8)
+        ax.legend(fontsize=8)
+
+    @staticmethod
+    def create_horizontal_diagramm(towns_array, towns_array_values, table_name, ax):
+        """Создает горизонтальную диаграмму"""
+        y_pos = np.arange(len(towns_array))
+        ax.grid(axis="y")
+        ax.barh(y_pos, towns_array_values, align='center')
+        ax.set_yticks(y_pos, labels=towns_array, fontsize=6)
+        ax.invert_yaxis()  # labels read top-to-bottom
+        ax.set_title(table_name)
+
+    @staticmethod
+    def create_circle_diagramm(sizes, labels, table_name, ax):
+        """Создает круглую диаграмму"""
+        ax.set_title(table_name)
+        patches, texts = ax.pie([1 - sum(sizes)] + sizes, labels=["Другие"] + labels)
+        for tick in texts:
+            tick.set_fontsize(6)
+
+
+class PDFCreator:
+    @staticmethod
+    def PDF_func(vac_name):
+        options = {'enable-local-file-access': None}
+        config = pdfkit.configuration(wkhtmltopdf=r'C:\Users\Saw4uk\Downloads\wkhtmltox\bin\wkhtmltopdf.exe')
+
+        env = Environment(loader=FileSystemLoader('.'))
+        template = env.get_template("pdf_template_html.html")
+
+        pdf_template = template.render({'name': vac_name})
+
+        pdfkit.from_string(pdf_template, 'out.pdf', configuration=config, options=options)
+
+
+class StartProgramm:
+
+    @staticmethod
+    def AsyncFunc(tuple_file_name):
+        data_set = DataSet(tuple_file_name[0])
+        stat = Statistics(tuple_file_name[1], data_set)
+        return stat
+
+    def __init__(self):
+        file_name = "vacancies_by_year.csv"  # ("Введите название файла: ")
+        vacancy_name = "Аналитик"  # input("Введите название профессии: ")
+        directoryList = os.listdir(f'SplittedFile/{file_name[:-4]}')
+        array_to_async = []
+        x = []
+        for dirname in directoryList:
+            array_to_async.append((f'{dirname}.csv',vacancy_name))
+        with Pool(6) as p:
+            x = p.map(StartProgramm.AsyncFunc, array_to_async)
+
+
+
+
+class MainStatistics:
+
+    def sum_to_main_town_array_town_amount(self, dic_to_summ):
+        for key in dic_to_summ.keys:
+            if self.dic_towns_amount[key] is None:
+                self.dic_towns_amount[key] = dic_to_summ[key]
+                continue
+            self.dic_towns_amount[key] += dic_to_summ[key]
+
+    def __init__(self,array_of_stat_objects):
+        self.dic_year_salaries = {}
+        self.dic_year_amount = {}
+        self.dic_towns_amount = {}
+        self.dic_towns_salaries = {}
+        self.dic_vac_amount = {}
+        self.dic_vac_salaries = {}
+        for stat in array_of_stat_objects:
+            self.sum_to_main_town_array_town_amount(stat.dic_year_amount)
+            self.dic_year_salaries[stat.dic_year_salaries.keys[0]] = stat.dic_year_salaries[stat.dic_year_salaries.keys[0]]
+            self.dic_year_amount[stat.dic_year_amount.keys[0]] = stat.dic_year_amount[stat.dic_year_amount.keys[0]]
+            self.dic_vac_salaries[stat.dic_vac_salaries.keys[0]] = stat.dic_vac_salaries[stat.dic_vac_salaries.keys[0]]
+            self.dic_vac_amount[stat.dic_vac_amount.keys[0]] = stat.dic_vac_amount[stat.dic_vac_amount.keys[0]]
+
+        self.print_formatted()
+        Report.generate_files(self, array_of_stat_objects[0].vacancy_name)
+
+
+    def print_formatted(self):
+        """Ввыодит результат статистической обработки в отформатированном виде"""
+        self.final_year_salar = self.get_format_dic(self.dic_year_salaries, self.dic_year_amount)
+        self.final_year_amount = self.dic_year_amount
+        print(f"Динамика уровня зарплат по годам: {self.final_year_salar}")
+        print(f"Динамика количества вакансий по годам: {self.final_year_amount}")
+        self.final_vac_salar = self.get_format_dic(self.dic_vac_salaries, self.dic_vac_amount)
+        self.final_vac_amount = self.dic_vac_amount
+        print(
+            f"Динамика уровня зарплат по годам для выбранной профессии: {self.final_vac_salar}")
+        print(f"Динамика количества вакансий по годам для выбранной профессии: {self.final_vac_amount}")
+        self.final_town_salar = self.get_ten_len(
+            self.sort_dic(self.get_format_dic(self.dic_towns_salaries, self.dic_towns_amount)))
+        self.final_town_amount = self.get_ten_len((self.get_parts()))
+        print(
+            f"Уровень зарплат по городам (в порядке убывания): {self.final_town_salar}")
+        print(f"Доля вакансий по городам (в порядке убывания): {self.final_town_amount}")
+
     def get_format_dic(self, dic, amdic):
         """Форматирует исходный словарь
 
@@ -335,82 +452,7 @@ class Statistics:
         """
         return dict(sorted(dic.items(), key=lambda item: float(item[1]), reverse=True))
 
-    def print_formatted(self):
-        """Ввыодит результат статистической обработки в отформатированном виде"""
-        self.final_year_salar = self.get_format_dic(self.dic_year_salaries, self.dic_year_amount)
-        self.final_year_amount = self.dic_year_amount
-        print(f"Динамика уровня зарплат по годам: {self.final_year_salar}")
-        print(f"Динамика количества вакансий по годам: {self.final_year_amount}")
-        self.final_vac_salar = self.get_format_dic(self.dic_vac_salaries, self.dic_vac_amount)
-        self.final_vac_amount = self.dic_vac_amount
-        print(
-            f"Динамика уровня зарплат по годам для выбранной профессии: {self.final_vac_salar}")
-        print(f"Динамика количества вакансий по годам для выбранной профессии: {self.final_vac_amount}")
-        self.final_town_salar = self.get_ten_len(
-            self.sort_dic(self.get_format_dic(self.dic_towns_salaries, self.dic_towns_amount)))
-        self.final_town_amount = self.get_ten_len((self.get_parts()))
-        print(
-            f"Уровень зарплат по городам (в порядке убывания): {self.final_town_salar}")
-        print(f"Доля вакансий по городам (в порядке убывания): {self.final_town_amount}")
 
-
-class DiagrammCreator:
-    @staticmethod
-    def create_collumns_diagramm(years, vacancy_salaries_array, middle_salaries_array, vacancy_name, table_name, ax):
-        """Создает столбчатую диаграмму"""
-        x = np.arange(len(years))  # the label locations
-        width = 0.3  # the width of the bars
-
-        ax.bar(x - width / 2, middle_salaries_array, width, label='Средняя з/п')
-        ax.bar(x + width / 2, vacancy_salaries_array, width, label=f'з/п {vacancy_name}')
-
-        ax.grid(axis="y")
-        ax.set_title(table_name)
-        ax.set_xticks(x, years, rotation=90, fontsize=8)
-        ax.legend(fontsize=8)
-
-    @staticmethod
-    def create_horizontal_diagramm(towns_array, towns_array_values, table_name, ax):
-        """Создает горизонтальную диаграмму"""
-        y_pos = np.arange(len(towns_array))
-        ax.grid(axis="y")
-        ax.barh(y_pos, towns_array_values, align='center')
-        ax.set_yticks(y_pos, labels=towns_array, fontsize=6)
-        ax.invert_yaxis()  # labels read top-to-bottom
-        ax.set_title(table_name)
-
-    @staticmethod
-    def create_circle_diagramm(sizes, labels, table_name, ax):
-        """Создает круглую диаграмму"""
-        ax.set_title(table_name)
-        patches, texts = ax.pie([1 - sum(sizes)] + sizes, labels=["Другие"] + labels)
-        for tick in texts:
-            tick.set_fontsize(6)
-
-
-class PDFCreator:
-    @staticmethod
-    def PDF_func(vac_name):
-        options = {'enable-local-file-access': None}
-        config = pdfkit.configuration(wkhtmltopdf=r'C:\Users\Saw4uk\Downloads\wkhtmltox\bin\wkhtmltopdf.exe')
-
-        env = Environment(loader=FileSystemLoader('.'))
-        template = env.get_template("pdf_template_html.html")
-
-        pdf_template = template.render({'name': vac_name})
-
-        pdfkit.from_string(pdf_template, 'out.pdf', configuration=config, options=options)
-
-
-class StartProgramm:
-    def __init__(self):
-        file_name = "vacancies_by_year.csv"  # ("Введите название файла: ")
-        vacancy_name = "Аналитик"  # input("Введите название профессии: ")
-        Splitter.splitCSV(file_name)
-        data_set = DataSet(file_name)
-        stat = Statistics(vacancy_name, data_set)
-        stat.print_formatted()
-        Report.generate_files(stat, vacancy_name)
 
 
 class Report:
@@ -484,7 +526,7 @@ class Report:
         Report.format_sheet_collumns_width(sheet)
 
     @staticmethod
-    def generate_files(statistics: Statistics, vac_name):
+    def generate_files(statistics: MainStatistics, vac_name):
         wb = Workbook()
         ##wb.remove(wb['Sheet'])
         year_statistics_sheet = wb.create_sheet("Статистика по годам")
