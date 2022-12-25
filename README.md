@@ -184,5 +184,6 @@ class CurrencyCounter:
 ```
 
 Вывод подсчета количества вакансий с валютами
+
 ![image](https://user-images.githubusercontent.com/87923228/209464331-5513149b-149d-41e3-b726-c3705189c957.png)
 
