@@ -150,7 +150,10 @@ class MainStatistics:
 
 ![image](https://user-images.githubusercontent.com/87923228/208296844-c94f9df6-1227-41d0-b709-f0e9b5114e88.png)
 
-Время с асинхом
+Время с multiprocessing
 
-![image](https://user-images.githubusercontent.com/87923228/208297424-7e8cc93c-33fd-495d-ba03-66a7a6b3ce74.png)
+![image](https://user-images.githubusercontent.com/87923228/209461697-4192dfaf-4523-43ea-a453-0b0c5bc389cd.png)
 
+Время с concurrent futures
+
+![image](https://user-images.githubusercontent.com/87923228/209461659-3d99ca5a-551e-48ac-aeba-db521fa4cf21.png)
