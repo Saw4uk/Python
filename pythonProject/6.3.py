@@ -373,7 +373,7 @@ class PDFCreator:
 
 class StartProgramm:
     def __init__(self):
-        file_name = "vacancies_by_year.csv"  # ("Введите название файла: ")
+        file_name = "../New Version/vacancies_by_year.csv"  # ("Введите название файла: ")
         vacancy_name = "Аналитик"  # input("Введите название профессии: ")
         data_set = DataSet(file_name)
         stat = Statistics(vacancy_name, data_set)
