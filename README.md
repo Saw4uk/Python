@@ -187,3 +187,6 @@ class CurrencyCounter:
 
 ![image](https://user-images.githubusercontent.com/87923228/209464331-5513149b-149d-41e3-b726-c3705189c957.png)
 
+Подходящие валюты
+
+![image](https://user-images.githubusercontent.com/87923228/209464527-5bf398ef-c7a5-41a6-9fed-b96ec69b9f4c.png)
