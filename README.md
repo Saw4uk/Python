@@ -154,6 +154,35 @@ class MainStatistics:
 
 ![image](https://user-images.githubusercontent.com/87923228/209461697-4192dfaf-4523-43ea-a453-0b0c5bc389cd.png)
 
+# 3.2.3
+
 Время с concurrent futures
 
 ![image](https://user-images.githubusercontent.com/87923228/209461659-3d99ca5a-551e-48ac-aeba-db521fa4cf21.png)
+
+# 3.3.1
+Код класса подсчета
+
+```py
+import pandas as pd
+import pprint
+
+
+class CurrencyCounter:
+    @staticmethod
+    def GetStatisticsByCities(full_file_name):
+        full_file = pd.read_csv(full_file_name, delimiter=',')
+        full_file = full_file[['name', 'salary_from', 'area_name', 'salary_to', 'salary_currency']]
+        all_currencies_dict = {}
+        for row in full_file.itertuples():
+            print(row[0])
+            if row[5] not in all_currencies_dict.keys():
+                all_currencies_dict[row[5]] = 1
+            else:
+                all_currencies_dict[row[5]] += 1
+        pprint.pprint(all_currencies_dict, width=1)
+```
+
+Вывод подсчета количества вакансий с валютами
+![image](https://user-images.githubusercontent.com/87923228/209464331-5513149b-149d-41e3-b726-c3705189c957.png)
+
