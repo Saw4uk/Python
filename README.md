@@ -175,11 +175,15 @@ class CurrencyCounter:
         full_file = full_file[['name', 'salary_from', 'area_name', 'salary_to', 'salary_currency']]
         all_currencies_dict = {}
         for row in full_file.itertuples():
-            print(row[0])
             if row[5] not in all_currencies_dict.keys():
                 all_currencies_dict[row[5]] = 1
             else:
                 all_currencies_dict[row[5]] += 1
+        result_array = []
+        for currency in all_currencies_dict.items():
+            if str(currency[0]) != 'nan' and currency[1] > 5000:
+                result_array.append(str(currency[0]))
+        print(result_array)
         pprint.pprint(all_currencies_dict, width=1)
 ```
 
