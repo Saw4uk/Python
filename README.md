@@ -194,3 +194,18 @@ class CurrencyCounter:
 Подходящие валюты
 
 ![image](https://user-images.githubusercontent.com/87923228/209464527-5bf398ef-c7a5-41a6-9fed-b96ec69b9f4c.png)
+
+Код класса поиска границ отбора валют
+
+```py
+    @staticmethod
+    def GetFirstAndLastDate(full_file_name):
+        full_file = pd.read_csv(full_file_name, delimiter=',')
+        full_file = full_file[['published_at']]
+        full_file.sort_values(by='published_at',ascending=False)
+        first_date = full_file['published_at'].iloc[-1][:7]
+        last_date = full_file['published_at'].iloc[0][:7]
+        print(full_file)
+        print(first_date)
+        print(last_date)
+```
