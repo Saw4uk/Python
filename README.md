@@ -209,3 +209,7 @@ class CurrencyCounter:
         print(first_date)
         print(last_date)
 ```
+
+Даты
+![image](https://user-images.githubusercontent.com/87923228/209464967-ae388188-6456-4634-85e6-24b4d5fc4fcd.png)
+
