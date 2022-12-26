@@ -329,3 +329,8 @@ CBLoader.GetValutesDataFrame(0, 0)
         return OneYearStatisticsInfo(middle_salary_by_year,vacancies_amount_by_year,middle_salary_by_year_for_vac,vacancies_amount_by_year_for_vac,
                                      file_name[len(file_name)-8:len(file_name)-4])
 ```
+
+Первые сто вакансий
+
+![image](https://user-images.githubusercontent.com/87923228/209562610-254661ad-d7b2-4370-a31b-bd43a1e51c6f.png)
+
