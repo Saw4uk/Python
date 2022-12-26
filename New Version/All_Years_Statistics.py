@@ -24,8 +24,7 @@ class AllYearsStatistics:
         full_file = pd.read_csv(full_file_name, delimiter=',')
         full_file = full_file[['name', 'salary_from', 'area_name', 'salary_to', 'salary_currency']]
         full_file = full_file.assign(salary_middle=lambda row: (row.salary_from + row.salary_to) / 2)
-        full_file['salary_middle'] = full_file['salary_middle'] * full_file['salary_currency'].apply(
-            lambda y: OneYearStatistics.currency_to_rub[y])
+        full_file['salary_middle'] = full_file['salary_middle'] * full_file['salary_currency'].apply(lambda y: OneYearStatistics.currency_to_rub[y])
         all_towns_array = []
         towns_statistics_salary_dic = {}
         towns_statistics_amount_dic = {}
@@ -35,6 +34,7 @@ class AllYearsStatistics:
                 continue
             else:
                 all_towns_array.append(row[3])
+
         for town in all_towns_array:
             current_group = groups_by_towns.get_group(town)
             if len(current_group) < len(full_file) / 100:
@@ -55,13 +55,14 @@ class AllYearsStatistics:
         vac_year_salary = {}
         for year_stat_object in array_of_year_stat_objects:
             dic_year_amount[year_stat_object.year] = year_stat_object.vacancies_amount_by_year
-            dic_year_salary[year_stat_object.year] = math.ceil(year_stat_object.middle_salary_by_year)
+            dic_year_salary[year_stat_object.year] = round(year_stat_object.middle_salary_by_year,2)
             vac_year_amount[year_stat_object.year] = year_stat_object.vacancies_amount_by_year_for_vac
-            vac_year_salary[year_stat_object.year] = math.ceil(year_stat_object.middle_salary_by_year_for_vac)
-        print(dic_year_amount)
-        print(dic_year_salary)
-        print(vac_year_amount)
-        print(vac_year_salary)
-        print(towns_statistics_salary_dic)
-        print(towns_statistics_amount_dic)
+            vac_year_salary[year_stat_object.year] = round(year_stat_object.middle_salary_by_year_for_vac,2)
+        print(f'Динамика уровня зарплат по годам: {dic_year_amount}')
+        print(f'Динамика количества вакансий по годам: {dic_year_salary}')
+        print(f'Динамика уровня зарплат по годам для выбранной профессии: {vac_year_amount}')
+        print(f'Динамика количества вакансий по годам для выбранной профессии: {vac_year_salary}')
+        print(f'Уровень зарплат по городам (в порядке убывания): {towns_statistics_salary_dic}')
+        print(f'Доля вакансий по городам (в порядке убывания): {towns_statistics_amount_dic}')
+
 
