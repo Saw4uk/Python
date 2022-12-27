@@ -318,19 +318,31 @@ CBLoader.GetValutesDataFrame(0, 0)
         file_name, vacancy_name, currencies_df = main_tuple
         readed_csv = pd.read_csv(file_name, delimiter=',')
         salary_table = readed_csv[['name','salary_from','salary_to','salary_currency', 'published_at']]
+        
         salary_table['salary_middle'] = salary_table.apply(add_middle_salary, axis = 1)
         salary_table['salary'] = salary_table.apply(calculate_salary, axis = 1)
         salary_table = salary_table.drop(['salary_from', 'salary_to', 'salary_currency', 'salary_middle'], axis=1)[salary_table['salary'].notna()]
+        
         only_vac_name_table = salary_table.loc[salary_table['name'].str.contains(vacancy_name)]
         middle_salary_by_year = salary_table['salary'].mean()
+        
         vacancies_amount_by_year = len(salary_table['salary'])
         middle_salary_by_year_for_vac = only_vac_name_table['salary'].mean()
+        
         vacancies_amount_by_year_for_vac = len(only_vac_name_table['salary'])
-        return OneYearStatisticsInfo(middle_salary_by_year,vacancies_amount_by_year,middle_salary_by_year_for_vac,vacancies_amount_by_year_for_vac,
-                                     file_name[len(file_name)-8:len(file_name)-4])
+        return OneYearStatisticsInfo(
+        middle_salary_by_year,
+        vacancies_amount_by_year,
+        middle_salary_by_year_for_vac,
+        vacancies_amount_by_year_for_vac,
+        file_name[len(file_name)-8:len(file_name)-4])
 ```
 
 Первые сто вакансий
 
 ![image](https://user-images.githubusercontent.com/87923228/209562610-254661ad-d7b2-4370-a31b-bd43a1e51c6f.png)
+# 3.3.3
+Выгрузка вакансий за день 
+![image](https://user-images.githubusercontent.com/87923228/209676940-6bcd46f8-c788-406b-a126-f09352a8ae83.png)
+
 
