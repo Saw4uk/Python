@@ -220,6 +220,7 @@ class CurrencyCounter:
 
 
 Класс загрузки Апи
+Новый код с защитой данных и првоеркой валюты
 ```py
 import xml.etree.ElementTree as ET
 import pandas as pd
@@ -285,4 +286,107 @@ class CBLoader:
 
 CBLoader.GetValutesDataFrame(0, 0)
 ```
+# 3.2.2
+```py
+    @staticmethod
+    def read_file(main_tuple):
+        def add_middle_salary(row):
+            if not pd.isnull(row.salary_from) and not pd.isnull(row.salary_to):
+                return (row.salary_from + row.salary_to) / 2
+            else:
+                if not pd.isnull(row.salary_to):
+                    return  row.salary_to
+                else:
+                    if not pd.isnull(row.salary_from):
+                        return row.salary_from
+                    else:
+                        return np.nan
+
+        def calculate_salary(row):
+            try :
+                x = row['salary_middle']
+                y = row['published_at'][:7]
+                z = row['salary_currency']
+                if z == 'RUR':
+                    v = 1
+                else:
+                    v = currencies_df.loc[y][z]
+                return x * v
+            except :
+                return np.nan
+
+        file_name, vacancy_name, currencies_df = main_tuple
+        readed_csv = pd.read_csv(file_name, delimiter=',')
+        salary_table = readed_csv[['name','salary_from','salary_to','salary_currency', 'published_at']]
+        
+        salary_table['salary_middle'] = salary_table.apply(add_middle_salary, axis = 1)
+        salary_table['salary'] = salary_table.apply(calculate_salary, axis = 1)
+        salary_table = salary_table.drop(['salary_from', 'salary_to', 'salary_currency', 'salary_middle'], axis=1)[salary_table['salary'].notna()]
+        
+        only_vac_name_table = salary_table.loc[salary_table['name'].str.contains(vacancy_name)]
+        middle_salary_by_year = salary_table['salary'].mean()
+        
+        vacancies_amount_by_year = len(salary_table['salary'])
+        middle_salary_by_year_for_vac = only_vac_name_table['salary'].mean()
+        
+        vacancies_amount_by_year_for_vac = len(only_vac_name_table['salary'])
+        return OneYearStatisticsInfo(
+        middle_salary_by_year,
+        vacancies_amount_by_year,
+        middle_salary_by_year_for_vac,
+        vacancies_amount_by_year_for_vac,
+        file_name[len(file_name)-8:len(file_name)-4])
+```
+
+Первые сто вакансий
+
+![image](https://user-images.githubusercontent.com/87923228/209562610-254661ad-d7b2-4370-a31b-bd43a1e51c6f.png)
+# 3.3.3
+
+Код класса выгрузки
+```py
+class API_loader:
+    @staticmethod
+    def parse_response(hour):
+        def get(dict, key):
+            try:
+                return dict.get(key)
+            except:
+                return None
+        result_array = []
+        for x in range(20):
+            for i in range(5):
+                res = requests.get(f'https://api.hh.ru/vacancies'
+                                   f'?specialization=1'
+                                   f'&per_page=100'
+                                   f'&page={x}'
+                                   f'&date_from=2022-12-26T{hour:02}:00:00'
+                                   f'&date_to=2022-12-26T{hour + 1:02}:00:00')
+                if res.status_code == 200:
+                    print(x)
+                    parsedJson = json.loads(res.text)["items"]
+                    result_array.append(pd.DataFrame([{'name': get(item, 'name'),
+                                          'salary_from': get(get(item, 'salary'), 'from'),
+                                          'salary_to': get(get(item, 'salary'), 'to'),
+                                          'salary_currency': get(get(item, 'salary'), 'currency'),
+                                          'area_name': get(get(item, 'area'), 'name'),
+                                          'published_at': get(item, 'published_at')} for item in parsedJson]))
+                    break
+        return pd.concat(result_array, ignore_index=True)
+
+    @staticmethod
+    def Load_API():
+        final_dataframe_array = []
+        for x in range(0, 23):
+            final_dataframe_array.append(API_loader.parse_response(x))
+        return pd.concat(final_dataframe_array, ignore_index=True)
+
+
+API_loader.Load_API().to_csv('API_3_3_3.csv')
+
+```
+
+Выгрузка вакансий за день 
+![image](https://user-images.githubusercontent.com/87923228/209676940-6bcd46f8-c788-406b-a126-f09352a8ae83.png)
+
 
