@@ -391,6 +391,10 @@ API_loader.Load_API().to_csv('API_3_3_3.csv')
 
 ## 3.4.2 - 3.4.3
 
+Report PDF
+![image](https://user-images.githubusercontent.com/87923228/209947494-62018b8a-8539-4b3a-9ce1-9819a28a093c.png)
+
+
 ![image](https://user-images.githubusercontent.com/87923228/209947384-f30ee130-f191-4631-a06a-3ae03a6d4185.png)
 
 ![image](https://user-images.githubusercontent.com/87923228/209947401-a6d0e8e9-acc6-4108-8f8c-c629de2d120d.png)
