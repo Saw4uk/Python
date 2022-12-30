@@ -389,7 +389,11 @@ API_loader.Load_API().to_csv('API_3_3_3.csv')
 Выгрузка вакансий за день 
 ![image](https://user-images.githubusercontent.com/87923228/209676940-6bcd46f8-c788-406b-a126-f09352a8ae83.png)
 
-## 3.4.1 - 3.4.3
+## 3.4.1
+
+![image](https://user-images.githubusercontent.com/87923228/210092803-1679e5b5-3e5b-4520-bec9-f97c5b3cd4f7.png)
+
+## 3.4.2 - 3.4.3
 
 Report PDF
 ![image](https://user-images.githubusercontent.com/87923228/209947494-62018b8a-8539-4b3a-9ce1-9819a28a093c.png)
